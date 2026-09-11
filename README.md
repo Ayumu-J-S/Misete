@@ -1,4 +1,4 @@
-# Misete / 見せて
+# Misete
 
 iPadの「画面ミラーリング」から接続し、Macアプリ内で画面を共有するための
 ローカルAirPlay受信アプリです。まずmacOS版を開発し、Linux向けに受信処理と
