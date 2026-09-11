@@ -7,7 +7,7 @@ at the pinned source revision, Homebrew GStreamer 1.28.7.
 
 | Check | Observed result |
 | --- | --- |
-| `scripts/check.sh` | 22 tests passed; Core line coverage 97.71%, Receiver 91.01% |
+| `scripts/check.sh` | 28 tests passed; Core line coverage 97.91%, Receiver 91.01% |
 | Warnings-as-errors Swift build | Passed |
 | Pinned UxPlay build and repeated setup | Passed |
 | `scripts/smoke-receiver.py` | Passed; synthetic JPEG transport and real UxPlay pipeline startup |
@@ -15,7 +15,7 @@ at the pinned source revision, Homebrew GStreamer 1.28.7.
 | Native app interaction | Opened Misete, started the display test, observed changing frames inside its window |
 | Stop and process cleanup | Display cleared; GStreamer process and loopback listener closed |
 | AirPlay startup | App reached waiting state; `dns-sd -L Misete _airplay._tcp local.` resolved with feature metadata |
-| Actual iPad | User reported a password prompt in the previous paired mode; successful mirroring is not yet verified |
+| Actual iPad | User connected without a code; Computer Use observed the live iPad screen inside Misete |
 
 The local test screenshot is in the ignored `artifacts/demo-screen.jpg`.
 Screenshots of real user content and pairing codes are not saved to the repo.
@@ -61,9 +61,9 @@ device identifiers:
 
 | Observation | Status |
 | --- | --- |
-| Misete appears in the iPad picker | Pending real-device validation |
-| Passwordless connection (new default) | Pending real-device validation |
-| First moving frame appears inside Misete | Pending real-device validation |
+| Misete appears in the iPad picker | User connected successfully |
+| Passwordless connection (new default) | Passed with the user's iPad |
+| First iPad frame appears inside Misete | Observed with Computer Use |
 | Rotation maintains correct aspect ratio | Pending real-device validation |
 | Disconnect cleans up the session | Pending real-device validation |
 | Reconnect starts a new session | Pending real-device validation |
@@ -93,3 +93,17 @@ caused the four-digit code to appear immediately in the native window. Stopping
 cleared it. The checkbox was turned off again, and display-test video was also
 verified in the simplified UI (`artifacts/simple-demo-screen.jpg`). This local
 protocol check is separate from a successful real-iPad pairing or stream.
+
+## Automatic window sizing
+
+The real iPad stream was visible with empty space at its sides before this
+change. Window fitting now uses the received image ratio and the measured
+video viewport, including actual titlebar and control heights. It fits the
+first frame, refits when the ratio changes, and snaps to the video ratio after
+manual resizing. It stays within the current screen's usable bounds and avoids
+changing fullscreen geometry. Narrow windows use compact settings controls.
+
+Six geometry tests cover landscape, portrait, ultrawide, screen clamping,
+minimum width, and invalid inputs. The packaged app's synthetic 4:3 video was
+observed filling the window horizontally, and manual resizing preserved this
+fit. Real-iPad rotation after this build remains to be verified on reconnection.

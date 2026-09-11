@@ -45,3 +45,12 @@ part of this implementation. Do not promise that protected content will mirror.
 - AirDroid Cast guide: https://www.airdroid.com/guide/cast/
 - UxPlay upstream: https://github.com/FDH2/UxPlay
 - UxPlay licensing: https://github.com/FDH2/UxPlay/blob/master/LICENSE
+
+## Window sizing
+
+`VideoWindowGeometry` computes a visible-screen-bounded frame from the source
+aspect ratio and a fixed chrome height. `VideoWindowFitter` measures chrome as
+window height minus video viewport height, preserving the current video height
+when a source first appears or rotates. Manual resizing preserves the chosen
+width; fullscreen is left to macOS. Repeated frames of the same ratio do not
+continually resize the window.
