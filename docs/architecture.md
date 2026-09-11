@@ -16,6 +16,19 @@ inside the app. No companion iPad app is required. The first target is macOS 14+
 3. A Swift receiver owns the child process, bounded frame decoding, state,
    and cleanup. The macOS app displays frames with their original aspect ratio.
 
+The local listener permits at most four simultaneous pipeline connections;
+each parser permits an 8 MiB JPEG and reads at most 64 KiB per receive. A
+single-slot mailbox drops superseded frames before delivery to the UI. UxPlay
+advertises TCP/UDP ports 35000–35002 with `-n Misete -nh`. `-vsync no` follows
+upstream's macOS recommendation; audio uses UxPlay's normal audio renderer.
+
+New clients receive a freshly generated UxPlay PIN (`-pin` with no fixed value).
+Misete extracts only the pairing event and clears the visible PIN after pairing,
+streaming, or disconnect. Returning clients are checked against a private
+`~/Library/Application Support/Misete/paired-clients.register` file. The app
+uses `UXPLAYRC=/dev/null` to isolate the helper from unrelated user configuration
+and retains only curated diagnostics, never raw protocol output or screen frames.
+
 The JPEG hop trades some CPU and latency for a simple, inspectable boundary
 that avoids private macOS window embedding APIs. Measure with real iPad content
 before attempting a zero-copy transport. Linux can reuse UxPlay and this framing

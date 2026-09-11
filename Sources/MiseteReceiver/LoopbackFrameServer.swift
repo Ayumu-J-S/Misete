@@ -9,6 +9,7 @@ public final class LoopbackFrameServer: @unchecked Sendable {
     private let frameHandler: FrameHandler
     private let connectionHandler: @Sendable (Bool) -> Void
     private let maximumFrameBytes: Int
+    private let maximumConcurrentConnections: Int
     private let lock = NSLock()
     private var listener: NWListener?
     private var connections: [ObjectIdentifier: NWConnection] = [:]
@@ -16,10 +17,13 @@ public final class LoopbackFrameServer: @unchecked Sendable {
 
     public init(
         maximumFrameBytes: Int = 8 * 1_024 * 1_024,
+        maximumConcurrentConnections: Int = 4,
         onConnectionChange: @escaping @Sendable (Bool) -> Void = { _ in },
         onFrame: @escaping FrameHandler
     ) {
+        precondition(maximumConcurrentConnections > 0)
         self.maximumFrameBytes = maximumFrameBytes
+        self.maximumConcurrentConnections = maximumConcurrentConnections
         self.connectionHandler = onConnectionChange
         self.frameHandler = onFrame
     }
@@ -77,7 +81,15 @@ public final class LoopbackFrameServer: @unchecked Sendable {
 
     private func accept(_ connection: NWConnection) {
         let identifier = ObjectIdentifier(connection)
-        lock.withLock { connections[identifier] = connection }
+        let accepted = lock.withLock { () -> Bool in
+            guard listener != nil, connections.count < maximumConcurrentConnections else { return false }
+            connections[identifier] = connection
+            return true
+        }
+        guard accepted else {
+            connection.cancel()
+            return
+        }
         connection.stateUpdateHandler = { [weak self, weak connection] state in
             switch state {
             case .ready:
@@ -123,6 +135,10 @@ public final class LoopbackFrameServer: @unchecked Sendable {
             return wasReady && readyConnections.isEmpty
         }
         if becameDisconnected { connectionHandler(false) }
+    }
+
+    var activeConnectionCount: Int {
+        lock.withLock { connections.count }
     }
 }
 
