@@ -10,6 +10,8 @@
     <string>app.misete.mac</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
+    <key>CFBundleIconFile</key>
+    <string>Misete</string>
     <key>CFBundleName</key>
     <string>Misete</string>
     <key>CFBundlePackageType</key>
