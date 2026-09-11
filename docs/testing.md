@@ -107,3 +107,11 @@ Six geometry tests cover landscape, portrait, ultrawide, screen clamping,
 minimum width, and invalid inputs. The packaged app's synthetic 4:3 video was
 observed filling the window horizontally, and manual resizing preserved this
 fit. Real-iPad rotation after this build remains to be verified on reconnection.
+
+## Footer removal
+
+Removed the entire lower status/action bar and its diagnostics sheet at the
+user's request. Release packaging passed. Computer Use confirmed that the
+window contains only the top controls and video area, with no lower status,
+display-test, diagnostics, or fullscreen actions. Native macOS window controls
+remain available. The command-line `--demo` path remains for development checks.

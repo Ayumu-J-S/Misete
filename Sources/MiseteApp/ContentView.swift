@@ -8,22 +8,11 @@ struct ContentView: View {
     @State private var name = "Misete"
     @State private var muted = false
     @State private var requiresPairing = false
-    @State private var showDiagnostics = false
 
     private var running: Bool {
         switch receiver.state {
         case .starting, .waiting, .streaming: return true
         case .idle, .failed: return false
-        }
-    }
-
-    private var status: String {
-        switch receiver.state {
-        case .idle: return "停止中"
-        case .starting: return "起動中…"
-        case .waiting: return receiver.isDemo ? "テスト映像を準備中…" : "接続待ち"
-        case .streaming: return receiver.isDemo ? "テスト映像" : "接続中"
-        case .failed: return "エラー"
         }
     }
 
@@ -63,40 +52,8 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .clipped()
             .background(VideoWindowFitter(videoSize: receiver.frame?.size))
-            Divider()
-
-            HStack(spacing: 12) {
-                Text(status).foregroundStyle(.secondary)
-                Spacer()
-                Button("表示テスト") { receiver.startDemo() }
-                    .disabled(running)
-                    .accessibilityIdentifier("startDemo")
-                Button("診断") { showDiagnostics = true }
-                Button("全画面") { NSApp.keyWindow?.toggleFullScreen(nil) }
-            }
-            .controlSize(.small)
-            .padding(10)
         }
         .frame(minWidth: 260, minHeight: 240)
-        .sheet(isPresented: $showDiagnostics) {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("診断").font(.headline)
-                ScrollView {
-                    Text(receiver.diagnostics.isEmpty ? "メッセージはありません。" : receiver.diagnostics.joined(separator: "\n"))
-                        .font(.system(size: 11, design: .monospaced))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .textSelection(.enabled)
-                }
-                .frame(height: 180)
-                HStack {
-                    Text("TCP / UDP 35000–35002").font(.caption).foregroundStyle(.secondary)
-                    Spacer()
-                    Button("閉じる") { showDiagnostics = false }.keyboardShortcut(.defaultAction)
-                }
-            }
-            .padding(20)
-            .frame(width: 480)
-        }
     }
 
     private func controls(compact: Bool) -> some View {
