@@ -1,5 +1,26 @@
 # Testing and validation
 
+## Verified on 2026-09-11
+
+Environment: Apple Silicon Mac, macOS 26.6.2, Xcode toolchain, UxPlay 1.74
+at the pinned source revision, Homebrew GStreamer 1.28.7.
+
+| Check | Observed result |
+| --- | --- |
+| `scripts/check.sh` | 21 tests passed; Core line coverage 97.58%, Receiver 90.95% |
+| Warnings-as-errors Swift build | Passed |
+| Pinned UxPlay build and repeated setup | Passed |
+| `scripts/smoke-receiver.py` | Passed; synthetic JPEG transport and real UxPlay pipeline startup |
+| Packaged app signature and resources | Passed; helper, icon, license, and source record present |
+| Native app interaction | Opened Misete, started the display test, observed changing frames inside its window |
+| Stop and process cleanup | Display cleared; GStreamer process and loopback listener closed |
+| AirPlay startup | App reached waiting state; `dns-sd -L Misete _airplay._tcp local.` resolved with feature metadata |
+| Actual iPad | Awaiting the user's device connection; not yet verified |
+
+The local test screenshot is in the ignored `artifacts/demo-screen.jpg`.
+Screenshots of real user content and pairing codes are not saved to the repo.
+The current app is a local developer bundle with Homebrew runtime dependencies.
+
 ## Automated checks
 
 Run the complete local check with:
@@ -9,9 +30,9 @@ scripts/check.sh
 ```
 
 The script runs `swift test --enable-code-coverage`, then uses `llvm-cov` data
-to require at least 80% line coverage for `Sources/MiseteCore`. This threshold
-is limited to the pure core target; receiver integration coverage and macOS UI
-evidence are reported separately.
+to require at least 80% line coverage for `Sources/MiseteCore`. It reports
+`Sources/MiseteReceiver` coverage separately. UI interaction evidence is
+independent of either percentage.
 
 Synthetic tests exercise framing, invalid input, process lifecycle, and state
 transformations without an AirPlay client. They can identify a local transport
