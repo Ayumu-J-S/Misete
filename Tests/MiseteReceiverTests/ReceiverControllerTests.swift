@@ -15,7 +15,7 @@ final class ReceiverControllerTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: script.deletingLastPathComponent()) }
         let controller = await MainActor.run { ReceiverController(uxplayURL: script) }
 
-        await MainActor.run { controller.start() }
+        await MainActor.run { controller.start(requiresPairing: true) }
         try await waitUntil { await MainActor.run { controller.state == .waiting } }
         let snapshot = await MainActor.run { (controller.pairingPIN, controller.diagnostics) }
         XCTAssertEqual(snapshot.0, "0427")

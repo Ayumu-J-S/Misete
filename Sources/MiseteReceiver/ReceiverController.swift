@@ -18,12 +18,13 @@ public final class ReceiverController: ObservableObject {
     private var process: Process?
     private var frameServer: LoopbackFrameServer?
     private var runID = UUID()
+    private var pairingEnabled = false
 
     public init(uxplayURL: URL? = nil) {
         self.uxplayURL = uxplayURL
     }
 
-    public func start(name: String = "Misete", muted: Bool = false) {
+    public func start(name: String = "Misete", muted: Bool = false, requiresPairing: Bool = false) {
         stop()
         state = .starting
         receiverName = name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -31,11 +32,12 @@ public final class ReceiverController: ObservableObject {
         frameCount = 0
         diagnostics = ["Preparing the local frame receiver."]
         isDemo = false
+        pairingEnabled = requiresPairing
         let currentRun = runID
         pairingPIN = nil
 
         Task { [weak self] in
-            await self?.startReceiver(name: name, muted: muted, runID: currentRun)
+            await self?.startReceiver(name: name, muted: muted, requiresPairing: requiresPairing, runID: currentRun)
         }
     }
 
@@ -48,6 +50,7 @@ public final class ReceiverController: ObservableObject {
         pairingPIN = nil
         diagnostics = ["Preparing the local display test."]
         isDemo = true
+        pairingEnabled = false
         let currentRun = runID
         Task { [weak self] in
             await self?.startDemoProcess(runID: currentRun)
@@ -63,12 +66,13 @@ public final class ReceiverController: ObservableObject {
         frame = nil
         frameCount = 0
         isDemo = false
+        pairingEnabled = false
         state = .idle
     }
 
-    private func startReceiver(name: String, muted: Bool, runID: UUID) async {
+    private func startReceiver(name: String, muted: Bool, requiresPairing: Bool, runID: UUID) async {
         do {
-            let registrationFile = try Self.registrationFile()
+            let registrationFile = requiresPairing ? try Self.registrationFile() : nil
             let server = makeFrameServer(runID: runID)
             let port = try await server.start()
             guard self.runID == runID else { server.stop(); return }
@@ -76,6 +80,7 @@ public final class ReceiverController: ObservableObject {
             let configuration = try ReceiverConfiguration(
                 receiverName: name,
                 framePort: Int(port),
+                requiresPairing: requiresPairing,
                 registrationFile: registrationFile,
                 muted: muted
             )
@@ -152,7 +157,7 @@ public final class ReceiverController: ObservableObject {
                             self.addDiagnostic("AirPlay service advertised on the local network.")
                             if self.state == .starting { self.state = .waiting }
                         case .pairingPIN(let pin):
-                            self.pairingPIN = pin
+                            if self.pairingEnabled { self.pairingPIN = pin }
                         case .clientRegistered:
                             self.pairingPIN = nil
                         }

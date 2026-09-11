@@ -22,12 +22,12 @@ single-slot mailbox drops superseded frames before delivery to the UI. UxPlay
 advertises TCP/UDP ports 35000–35002 with `-n Misete -nh`. `-vsync no` follows
 upstream's macOS recommendation; audio uses UxPlay's normal audio renderer.
 
-New clients receive a freshly generated UxPlay PIN (`-pin` with no fixed value).
-Misete extracts only the pairing event and clears the visible PIN after pairing,
-streaming, or disconnect. Returning clients are checked against a private
-`~/Library/Application Support/Misete/paired-clients.register` file. The app
-uses `UXPLAYRC=/dev/null` to isolate the helper from unrelated user configuration
-and retains only curated diagnostics, never raw protocol output or screen frames.
+Per the user's explicit choice on 2026-09-11, the app defaults to passwordless
+AirPlay and omits `-pin`, `-pw`, and `-reg`. Devices on the same LAN may connect
+without a code. The standard macOS checkbox can opt into pairing while stopped; it is off
+on launch. The app uses
+`UXPLAYRC=/dev/null` to isolate the helper from unrelated user configuration and
+retains only curated diagnostics, never raw protocol output or screen frames.
 
 The JPEG hop trades some CPU and latency for a simple, inspectable boundary
 that avoids private macOS window embedding APIs. Measure with real iPad content

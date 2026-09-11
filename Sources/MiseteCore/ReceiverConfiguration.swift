@@ -30,16 +30,18 @@ public struct ReceiverConfiguration: Equatable, Sendable {
     public let receiverName: String
     public let airPlayPorts: [Int]
     public let framePort: Int
+    public let requiresPairing: Bool
     public let pairingPIN: String?
-    public let registrationFile: URL
+    public let registrationFile: URL?
     public let muted: Bool
 
     public init(
         receiverName: String = "Misete",
         airPlayPorts: [Int] = ReceiverConfiguration.defaultAirPlayPorts,
         framePort: Int,
+        requiresPairing: Bool = false,
         pairingPIN: String? = nil,
-        registrationFile: URL,
+        registrationFile: URL? = nil,
         muted: Bool = false
     ) throws {
         let trimmedName = receiverName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -60,22 +62,27 @@ public struct ReceiverConfiguration: Equatable, Sendable {
         guard Set(allPorts).count == allPorts.count else {
             throw ReceiverConfigurationError.duplicatePorts
         }
-        if let pairingPIN {
+        if requiresPairing, let pairingPIN {
             guard pairingPIN.count == 4,
                   pairingPIN.utf8.allSatisfy({ (48...57).contains($0) }),
                   pairingPIN != "0000" else {
                 throw ReceiverConfigurationError.invalidPIN
             }
         }
-        guard registrationFile.isFileURL, !registrationFile.path.isEmpty else {
-            throw ReceiverConfigurationError.invalidRegistrationFile
+        if requiresPairing {
+            guard let registrationFile,
+                  registrationFile.isFileURL,
+                  !registrationFile.path.isEmpty else {
+                throw ReceiverConfigurationError.invalidRegistrationFile
+            }
         }
 
         self.receiverName = trimmedName
         self.airPlayPorts = airPlayPorts
         self.framePort = framePort
-        self.pairingPIN = pairingPIN
-        self.registrationFile = registrationFile
+        self.requiresPairing = requiresPairing
+        self.pairingPIN = requiresPairing ? pairingPIN : nil
+        self.registrationFile = requiresPairing ? registrationFile : nil
         self.muted = muted
     }
 
@@ -87,12 +94,14 @@ public struct ReceiverConfiguration: Equatable, Sendable {
         var arguments = [
             "-n", receiverName,
             "-nh",
-            "-p", airPlayPorts.map(String.init).joined(separator: ","),
-            "-pin"
+            "-p", airPlayPorts.map(String.init).joined(separator: ",")
         ]
-        if let pairingPIN { arguments.append(pairingPIN) }
+        if requiresPairing, let registrationFile {
+            arguments.append("-pin")
+            if let pairingPIN { arguments.append(pairingPIN) }
+            arguments += ["-reg", registrationFile.path]
+        }
         arguments += [
-            "-reg", registrationFile.path,
             "-d", "1",
             "-vsync", "no",
             "-vs", videoSink

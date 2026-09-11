@@ -11,6 +11,9 @@ DNS-SD advertising. Advertising a name alone does not implement AirPlay. The
 video must render inside Misete; a separate GStreamer player window is not
 acceptance. Use the local JPEG transport to keep the UI separate from UxPlay.
 
+The user chose passwordless AirPlay on 2026-09-11. Default launches must omit
+`-pin`, `-pw`, and `-reg`; do not silently restore a code requirement.
+
 Keep the frame endpoint loopback-only, reject excessive frame buffers, launch
 UxPlay without a shell, and stop child processes when the app quits. Keep PINs
 out of saved diagnostics. Test chunk fragmentation, process errors, stop/restart,

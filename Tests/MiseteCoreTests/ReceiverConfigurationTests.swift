@@ -5,6 +5,7 @@ final class ReceiverConfigurationTests: XCTestCase {
     func testDefaultsBuildExpectedUxPlayArguments() throws {
         let configuration = try ReceiverConfiguration(
             framePort: 49152,
+            requiresPairing: true,
             pairingPIN: "0427",
             registrationFile: URL(fileURLWithPath: "/tmp/Misete Clients")
         )
@@ -20,31 +21,43 @@ final class ReceiverConfigurationTests: XCTestCase {
         ])
     }
 
-    func testBarePINRequestsPerClientRandomCode() throws {
-        let configuration = try ReceiverConfiguration(framePort: 49152, registrationFile: URL(fileURLWithPath: "/tmp/r"))
+    func testDefaultDoesNotRequestAnyAuthentication() throws {
+        let configuration = try ReceiverConfiguration(framePort: 49152)
+        XCTAssertFalse(configuration.uxPlayArguments.contains("-pin"))
+        XCTAssertFalse(configuration.uxPlayArguments.contains("-reg"))
+        XCTAssertFalse(configuration.uxPlayArguments.contains("-pw"))
+    }
+
+    func testPairingOptInRequestsPerClientRandomCode() throws {
+        let configuration = try ReceiverConfiguration(
+            framePort: 49152,
+            requiresPairing: true,
+            registrationFile: URL(fileURLWithPath: "/tmp/r")
+        )
         XCTAssertEqual(Array(configuration.uxPlayArguments.prefix(7)), [
             "-n", "Misete", "-nh", "-p", "35000,35001,35002", "-pin", "-reg"
         ])
     }
 
     func testRejectsInvalidNamesPortsAndPINs() {
-        XCTAssertThrowsError(try ReceiverConfiguration(receiverName: "   ", framePort: 4000, pairingPIN: "1234", registrationFile: URL(fileURLWithPath: "/tmp/r")))
-        XCTAssertThrowsError(try ReceiverConfiguration(receiverName: String(repeating: "a", count: 46), framePort: 4000, pairingPIN: "1234", registrationFile: URL(fileURLWithPath: "/tmp/r")))
-        XCTAssertThrowsError(try ReceiverConfiguration(receiverName: "Bad\0Name", framePort: 4000, pairingPIN: "1234", registrationFile: URL(fileURLWithPath: "/tmp/r")))
-        XCTAssertNoThrow(try ReceiverConfiguration(receiverName: String(repeating: "é", count: 22), framePort: 4000, pairingPIN: "1234", registrationFile: URL(fileURLWithPath: "/tmp/r")))
-        XCTAssertThrowsError(try ReceiverConfiguration(airPlayPorts: [80, 35001, 35002], framePort: 4000, pairingPIN: "1234", registrationFile: URL(fileURLWithPath: "/tmp/r")))
-        XCTAssertThrowsError(try ReceiverConfiguration(airPlayPorts: [35000, 35000, 35002], framePort: 4000, pairingPIN: "1234", registrationFile: URL(fileURLWithPath: "/tmp/r")))
-        XCTAssertThrowsError(try ReceiverConfiguration(framePort: 35000, pairingPIN: "1234", registrationFile: URL(fileURLWithPath: "/tmp/r")))
-        XCTAssertThrowsError(try ReceiverConfiguration(framePort: 4000, pairingPIN: "0000", registrationFile: URL(fileURLWithPath: "/tmp/r")))
-        XCTAssertThrowsError(try ReceiverConfiguration(framePort: 4000, pairingPIN: "123", registrationFile: URL(fileURLWithPath: "/tmp/r")))
-        XCTAssertThrowsError(try ReceiverConfiguration(framePort: 4000, pairingPIN: "１２３４", registrationFile: URL(fileURLWithPath: "/tmp/r")))
-        XCTAssertThrowsError(try ReceiverConfiguration(airPlayPorts: [35000, 35001], framePort: 4000, registrationFile: URL(fileURLWithPath: "/tmp/r")))
-        XCTAssertThrowsError(try ReceiverConfiguration(framePort: 70000, registrationFile: URL(fileURLWithPath: "/tmp/r")))
-        XCTAssertThrowsError(try ReceiverConfiguration(framePort: 4000, registrationFile: URL(string: "https://example.com/r")!))
+        XCTAssertThrowsError(try ReceiverConfiguration(receiverName: "   ", framePort: 4000))
+        XCTAssertThrowsError(try ReceiverConfiguration(receiverName: String(repeating: "a", count: 46), framePort: 4000))
+        XCTAssertThrowsError(try ReceiverConfiguration(receiverName: "Bad\0Name", framePort: 4000))
+        XCTAssertNoThrow(try ReceiverConfiguration(receiverName: String(repeating: "é", count: 22), framePort: 4000))
+        XCTAssertThrowsError(try ReceiverConfiguration(airPlayPorts: [80, 35001, 35002], framePort: 4000))
+        XCTAssertThrowsError(try ReceiverConfiguration(airPlayPorts: [35000, 35000, 35002], framePort: 4000))
+        XCTAssertThrowsError(try ReceiverConfiguration(framePort: 35000))
+        XCTAssertThrowsError(try ReceiverConfiguration(framePort: 4000, requiresPairing: true, pairingPIN: "0000", registrationFile: URL(fileURLWithPath: "/tmp/r")))
+        XCTAssertThrowsError(try ReceiverConfiguration(framePort: 4000, requiresPairing: true, pairingPIN: "123", registrationFile: URL(fileURLWithPath: "/tmp/r")))
+        XCTAssertThrowsError(try ReceiverConfiguration(framePort: 4000, requiresPairing: true, pairingPIN: "１２３４", registrationFile: URL(fileURLWithPath: "/tmp/r")))
+        XCTAssertThrowsError(try ReceiverConfiguration(airPlayPorts: [35000, 35001], framePort: 4000))
+        XCTAssertThrowsError(try ReceiverConfiguration(framePort: 70000))
+        XCTAssertThrowsError(try ReceiverConfiguration(framePort: 4000, requiresPairing: true, registrationFile: URL(string: "https://example.com/r")!))
+        XCTAssertThrowsError(try ReceiverConfiguration(framePort: 4000, requiresPairing: true))
     }
 
     func testMutedConfigurationDisablesAudioAndErrorsAreActionable() throws {
-        let configuration = try ReceiverConfiguration(framePort: 4000, registrationFile: URL(fileURLWithPath: "/tmp/r"), muted: true)
+        let configuration = try ReceiverConfiguration(framePort: 4000, muted: true)
         XCTAssertEqual(Array(configuration.uxPlayArguments.suffix(2)), ["-as", "0"])
         let errors: [ReceiverConfigurationError] = [
             .invalidName, .invalidPort(80), .duplicatePorts, .invalidPIN, .invalidRegistrationFile

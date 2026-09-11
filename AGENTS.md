@@ -15,7 +15,8 @@ future target; keep protocol/transport decisions separate from the macOS UI.
   necessary stream/process/UI state to explicit owners and queues.
 - Validate configuration and bound untrusted network buffers. Launch processes
   with argument arrays, never a shell command assembled from user input.
-- Keep local video transport on loopback and require AirPlay pairing. Do not
+- Keep local video transport on loopback. The user explicitly chose passwordless
+  AirPlay on 2026-09-11; do not silently re-enable pairing. Do not
   persist screen contents or credentials in logs or source control.
 - Cover core logic at 80% or higher. Report unit/integration coverage separately
   from UI and real-iPad evidence. A synthetic video is not an AirPlay test.
