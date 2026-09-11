@@ -3,5 +3,7 @@ Repository: https://github.com/FDH2/UxPlay.git
 Revision: 9bebe1268671aeb76d0fd0e10621c05b5175505e
 License: GPL-3.0-or-later
 
-The build script copies the exact source checkout license and build provenance
-into the app bundle at Contents/Resources/ThirdParty/UxPlay/.
+The build applies Resources/Patches/uxplay-stdout-flush.patch after verifying
+it against the pinned source. The build script copies the exact source checkout
+license, patch, and generated build provenance into the app bundle at
+Contents/Resources/ThirdParty/UxPlay/.

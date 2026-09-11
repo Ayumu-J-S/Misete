@@ -1,0 +1,9 @@
+--- a/uxplay.cpp
++++ b/uxplay.cpp
+@@ -264,5 +264,6 @@ static void log(int level, const char* format, ...) {
+     va_start(vargs, format);
+     vprintf(format, vargs);
+     printf("\n");
++    fflush(stdout);
+     va_end(vargs);
+ }

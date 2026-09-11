@@ -9,18 +9,25 @@ build_dir="$deps_dir/uxplay-build"
 install_dir="$deps_dir/uxplay"
 repository="https://github.com/FDH2/UxPlay.git"
 revision="9bebe1268671aeb76d0fd0e10621c05b5175505e"
+patch_file="$root_dir/Resources/Patches/uxplay-stdout-flush.patch"
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
   echo "UxPlay receiver setup is currently supported on macOS only." >&2
   exit 1
 fi
 
-for command in git cmake brew; do
+for command in git cmake brew patch; do
   if ! command -v "$command" >/dev/null 2>&1; then
     echo "Missing $command. Run scripts/setup.sh first." >&2
     exit 1
   fi
 done
+
+if [[ ! -f "$patch_file" ]]; then
+  echo "Missing required UxPlay patch: $patch_file" >&2
+  exit 1
+fi
+patch_sha256="$(shasum -a 256 "$patch_file" | awk '{print $1}')"
 
 for formula in gstreamer libplist openssl@3 pkgconf; do
   if ! brew list --versions "$formula" >/dev/null 2>&1; then
@@ -45,16 +52,37 @@ if [[ "$origin_url" != "$repository" ]]; then
   exit 1
 fi
 
-if [[ -n "$(git -C "$source_dir" status --porcelain)" ]]; then
-  echo "UxPlay source checkout has local changes; refusing to overwrite provenance." >&2
+git -C "$source_dir" fetch --quiet origin "$revision"
+if [[ -n "$(git -C "$source_dir" ls-files --others --exclude-standard)" ]] || \
+   ! git -C "$source_dir" diff --quiet --cached; then
+  echo "UxPlay source checkout has untracked or staged changes; refusing to overwrite provenance." >&2
   exit 1
 fi
 
-git -C "$source_dir" fetch --quiet origin "$revision"
-git -C "$source_dir" checkout --quiet --detach "$revision"
+changed_files="$(git -C "$source_dir" diff --name-only)"
+if [[ -z "$changed_files" ]]; then
+  git -C "$source_dir" checkout --quiet --detach "$revision"
+  git -C "$source_dir" apply --check "$patch_file"
+  git -C "$source_dir" apply "$patch_file"
+elif [[ "$changed_files" != "uxplay.cpp" ]]; then
+  echo "UxPlay source checkout has unexpected local changes; refusing to overwrite provenance." >&2
+  exit 1
+fi
 actual_revision="$(git -C "$source_dir" rev-parse HEAD)"
 if [[ "$actual_revision" != "$revision" ]]; then
   echo "UxPlay revision verification failed: expected $revision, got $actual_revision" >&2
+  exit 1
+fi
+
+expected_dir="$(mktemp -d "$deps_dir/.uxplay-expected.XXXXXX")"
+cleanup_expected() {
+  rm -rf "$expected_dir"
+}
+trap cleanup_expected EXIT
+git -C "$source_dir" show "$revision:uxplay.cpp" > "$expected_dir/uxplay.cpp"
+if ! (cd "$expected_dir" && patch --batch --silent -p1 < "$patch_file") || \
+   ! cmp -s "$source_dir/uxplay.cpp" "$expected_dir/uxplay.cpp"; then
+  echo "UxPlay source differs from the exact pinned source plus stdout-flush patch." >&2
   exit 1
 fi
 
@@ -79,6 +107,8 @@ cat > "$install_dir/SOURCE.txt" <<EOF
 Component: UxPlay
 Repository: $repository
 Revision: $revision
+Patch: Resources/Patches/uxplay-stdout-flush.patch (fflush(stdout) after UxPlay log lines)
+Patch-SHA256: $patch_sha256
 License: GPL-3.0-or-later; see licenses/UxPlay-GPL-3.0.txt
 Built locally by scripts/setup-receiver.sh
 EOF

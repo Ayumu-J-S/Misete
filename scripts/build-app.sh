@@ -36,7 +36,7 @@ fi
 mkdir -p "$dist_dir"
 build_workspace="$(mktemp -d "$dist_dir/.Misete-build.XXXXXX")"
 bundle="$build_workspace/Misete.app"
-mkdir -p "$bundle/Contents/MacOS" "$bundle/Contents/Helpers" "$bundle/Contents/Resources/ThirdParty/UxPlay"
+mkdir -p "$bundle/Contents/MacOS" "$bundle/Contents/Helpers" "$bundle/Contents/Resources/ThirdParty/UxPlay/Patches"
 icon_workspace="$(mktemp -d "${TMPDIR:-/tmp}/misete-icon.XXXXXX")"
 iconset="$icon_workspace/Misete.iconset"
 swift "$root_dir/scripts/generate-icon.swift" "$iconset"
@@ -46,6 +46,7 @@ cp "$receiver" "$bundle/Contents/Helpers/uxplay"
 cp "$root_dir/Resources/Info.plist" "$bundle/Contents/Info.plist"
 cp "$root_dir/.deps/uxplay/licenses/UxPlay-GPL-3.0.txt" "$bundle/Contents/Resources/ThirdParty/UxPlay/LICENSE"
 cp "$root_dir/.deps/uxplay/SOURCE.txt" "$bundle/Contents/Resources/ThirdParty/UxPlay/SOURCE.txt"
+cp "$root_dir/Resources/Patches/uxplay-stdout-flush.patch" "$bundle/Contents/Resources/ThirdParty/UxPlay/Patches/"
 
 # This is a developer bundle, not a redistributable package. UxPlay and its
 # dependencies resolve from the developer's Homebrew prefix at runtime.

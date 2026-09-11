@@ -79,3 +79,17 @@ confirmed that `接続コード` is off on launch and that starting reaches `接
 Inspection of the running helper confirmed no `-pin`, `-pw`, or `-reg` arguments.
 The user was asked to cancel the previous iPad password prompt and select Misete
 again. This does not yet establish a successful real-device stream.
+
+## Optional PIN delivery regression
+
+The previous missing code was reproduced with the real UxPlay helper: a local
+`POST /pair-pin-start` request returned successfully, but the PIN event remained
+in stdout's buffer. The one-line stdout flush patch fixes delivery without
+changing authentication. `scripts/test-pin-flush.py` failed before the patch
+and passes afterward, without printing or persisting the generated PIN.
+
+Computer Use then enabled `接続コード` in the packaged app; a local RTSP request
+caused the four-digit code to appear immediately in the native window. Stopping
+cleared it. The checkbox was turned off again, and display-test video was also
+verified in the simplified UI (`artifacts/simple-demo-screen.jpg`). This local
+protocol check is separate from a successful real-iPad pairing or stream.
