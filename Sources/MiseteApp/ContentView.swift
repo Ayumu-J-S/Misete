@@ -29,27 +29,9 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 14) {
-                TextField("AirPlay名", text: $name)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 160)
-                    .disabled(running)
-                    .accessibilityLabel("AirPlay名")
-                    .accessibilityIdentifier("receiverName")
-                Toggle("音声", isOn: Binding(get: { !muted }, set: { muted = !$0 }))
-                    .disabled(running)
-                Toggle("接続コード", isOn: $requiresPairing)
-                    .disabled(running)
-                    .accessibilityIdentifier("requirePairing")
-                Spacer()
-                Button(running ? "停止" : "開始") {
-                    if running {
-                        receiver.stop()
-                    } else {
-                        receiver.start(name: name, muted: muted, requiresPairing: requiresPairing)
-                    }
-                }
-                .accessibilityIdentifier("toggleReceiver")
+            ViewThatFits(in: .horizontal) {
+                controls(compact: false)
+                controls(compact: true)
             }
             .padding(12)
 
@@ -80,6 +62,7 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .clipped()
+            .background(VideoWindowFitter(videoSize: receiver.frame?.size))
             Divider()
 
             HStack(spacing: 12) {
@@ -94,7 +77,7 @@ struct ContentView: View {
             .controlSize(.small)
             .padding(10)
         }
-        .frame(minWidth: 620, minHeight: 420)
+        .frame(minWidth: 260, minHeight: 240)
         .sheet(isPresented: $showDiagnostics) {
             VStack(alignment: .leading, spacing: 16) {
                 Text("診断").font(.headline)
@@ -115,4 +98,47 @@ struct ContentView: View {
             .frame(width: 480)
         }
     }
+
+    private func controls(compact: Bool) -> some View {
+        HStack(spacing: 12) {
+            TextField("AirPlay名", text: $name)
+                .textFieldStyle(.roundedBorder)
+                .frame(width: compact ? 100 : 160)
+                .disabled(running)
+                .accessibilityLabel("AirPlay名")
+                .accessibilityIdentifier("receiverName")
+            if compact {
+                Menu {
+                    settings
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+                .menuStyle(.borderlessButton)
+                .fixedSize()
+                .accessibilityLabel("設定")
+            } else {
+                settings
+            }
+            Spacer(minLength: 0)
+            Button(running ? "停止" : "開始") {
+                if running {
+                    receiver.stop()
+                } else {
+                    receiver.start(name: name, muted: muted, requiresPairing: requiresPairing)
+                }
+            }
+            .accessibilityIdentifier("toggleReceiver")
+        }
+    }
+
+    private var settings: some View {
+        Group {
+            Toggle("音声", isOn: Binding(get: { !muted }, set: { muted = !$0 }))
+                .disabled(running)
+            Toggle("接続コード", isOn: $requiresPairing)
+                .disabled(running)
+                .accessibilityIdentifier("requirePairing")
+        }
+    }
+
 }
