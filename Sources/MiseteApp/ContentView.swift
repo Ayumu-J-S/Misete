@@ -5,7 +5,6 @@ import MiseteReceiver
 
 struct ContentView: View {
     @ObservedObject var receiver: ReceiverController
-    @State private var name = "Misete"
     @State private var muted = false
     @State private var requiresPairing = false
 
@@ -18,11 +17,8 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ViewThatFits(in: .horizontal) {
-                controls(compact: false)
-                controls(compact: true)
-            }
-            .padding(12)
+            controls
+                .padding(12)
 
             Divider()
             ZStack {
@@ -56,32 +52,15 @@ struct ContentView: View {
         .frame(minWidth: 260, minHeight: 240)
     }
 
-    private func controls(compact: Bool) -> some View {
+    private var controls: some View {
         HStack(spacing: 12) {
-            TextField("AirPlay名", text: $name)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: compact ? 100 : 160)
-                .disabled(running)
-                .accessibilityLabel("AirPlay名")
-                .accessibilityIdentifier("receiverName")
-            if compact {
-                Menu {
-                    settings
-                } label: {
-                    Image(systemName: "gearshape")
-                }
-                .menuStyle(.borderlessButton)
-                .fixedSize()
-                .accessibilityLabel("設定")
-            } else {
-                settings
-            }
+            settings
             Spacer(minLength: 0)
             Button(running ? "停止" : "開始") {
                 if running {
                     receiver.stop()
                 } else {
-                    receiver.start(name: name, muted: muted, requiresPairing: requiresPairing)
+                    receiver.start(muted: muted, requiresPairing: requiresPairing)
                 }
             }
             .accessibilityIdentifier("toggleReceiver")
