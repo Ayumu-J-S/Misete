@@ -23,7 +23,9 @@ into `.deps/uxplay`. The script writes a source record and copies UxPlay's
 license into `.deps/uxplay/licenses`. `scripts/build-app.sh` preserves both in
 `Misete.app/Contents/Resources/ThirdParty/UxPlay/`.
 
-UxPlay is a separately built GPL dependency. The current bundle is for local
-development and uses Homebrew dynamic libraries; it is not a self-contained,
-redistributable package. Any distribution work needs a separate license and
-runtime-dependency review.
+UxPlay is a separately built GPL dependency. `scripts/build-app.sh` creates a
+developer bundle that uses Homebrew dynamic libraries directly.
+`scripts/build-user-app.sh` copies the required libraries into the app and
+rewrites their load paths. The result is ad hoc signed and not notarized, so
+public distribution still needs a separate license, architecture,
+notarization, and runtime-dependency review.

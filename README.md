@@ -7,10 +7,8 @@ it. It took me like 15 minutes, so here you go. Save yourself the token usage.
 
 ## Install
 
-The built app is at `dist/Misete.app`.
-
-Open it directly, or move `Misete.app` to your Applications folder and open it
-from there.
+Install Misete from [dist/Misete.dmg](dist/Misete.dmg). See
+[docs/install.md](docs/install.md) for the full installation and build details.
 
 ## Use
 
