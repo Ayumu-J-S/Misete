@@ -4,6 +4,8 @@ I was annoyed that there was no quick way to share an iPad screen to my Mac.
 There are apps for it, but I wanted something I could build and run myself,
 without relying on an App Store app I did not know. So I made Misete.
 
+It took me about 15 minutes, so here you go. Save yourself the token usage.
+
 ## Install
 
 The built app is at `dist/Misete.app`.
