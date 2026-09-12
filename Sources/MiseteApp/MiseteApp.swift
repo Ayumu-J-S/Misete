@@ -24,8 +24,8 @@ struct MiseteApp: App {
         .defaultSize(width: 900, height: 640)
         .commands {
             CommandGroup(replacing: .newItem) {}
-            CommandMenu("受信") {
-                Button("受信を停止") { receiver.stop() }
+            CommandMenu("Receiver") {
+                Button("Stop Receiver") { receiver.stop() }
                     .keyboardShortcut(".", modifiers: [.command])
             }
         }

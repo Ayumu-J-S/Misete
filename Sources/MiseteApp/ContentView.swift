@@ -28,7 +28,7 @@ struct ContentView: View {
                     Image(nsImage: frame)
                         .resizable()
                         .scaledToFit()
-                        .accessibilityLabel(receiver.isDemo ? "テスト映像" : "共有画面")
+                        .accessibilityLabel(receiver.isDemo ? "Demo video" : "Shared screen")
                 } else if case let .failed(message) = receiver.state {
                     Text(message)
                         .foregroundStyle(.secondary)
@@ -38,7 +38,7 @@ struct ContentView: View {
                 }
                 if let pin = receiver.pairingPIN, running, !receiver.isDemo {
                     VStack(spacing: 8) {
-                        Text("接続コード").font(.headline)
+                        Text("Connection code").font(.headline)
                         Text(pin).font(.system(size: 40, weight: .medium, design: .monospaced))
                     }
                     .padding(24)
@@ -56,7 +56,7 @@ struct ContentView: View {
         HStack(spacing: 12) {
             settings
             Spacer(minLength: 0)
-            Button(running ? "停止" : "開始") {
+            Button(running ? "Stop" : "Start") {
                 if running {
                     receiver.stop()
                 } else {
@@ -69,9 +69,9 @@ struct ContentView: View {
 
     private var settings: some View {
         Group {
-            Toggle("音声", isOn: Binding(get: { !muted }, set: { muted = !$0 }))
+            Toggle("Audio", isOn: Binding(get: { !muted }, set: { muted = !$0 }))
                 .disabled(running)
-            Toggle("接続コード", isOn: $requiresPairing)
+            Toggle("Connection code", isOn: $requiresPairing)
                 .disabled(running)
                 .accessibilityIdentifier("requirePairing")
         }

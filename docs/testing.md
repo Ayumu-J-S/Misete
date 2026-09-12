@@ -75,7 +75,8 @@ launch as a pass for any item in this table.
 
 The native window now contains a compact controls row and the video area, with
 no marketing copy, branding panel, cards, or forced appearance. Computer Use
-confirmed that `接続コード` is off on launch and that starting reaches `接続待ち`.
+confirmed that `Connection code` is off on launch and that starting reaches its
+waiting state.
 Inspection of the running helper confirmed no `-pin`, `-pw`, or `-reg` arguments.
 The user was asked to cancel the previous iPad password prompt and select Misete
 again. This does not yet establish a successful real-device stream.
@@ -88,7 +89,7 @@ in stdout's buffer. The one-line stdout flush patch fixes delivery without
 changing authentication. `scripts/test-pin-flush.py` failed before the patch
 and passes afterward, without printing or persisting the generated PIN.
 
-Computer Use then enabled `接続コード` in the packaged app; a local RTSP request
+Computer Use then enabled `Connection code` in the packaged app; a local RTSP request
 caused the four-digit code to appear immediately in the native window. Stopping
 cleared it. The checkbox was turned off again, and display-test video was also
 verified in the simplified UI (`artifacts/simple-demo-screen.jpg`). This local

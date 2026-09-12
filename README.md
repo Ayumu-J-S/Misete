@@ -14,7 +14,7 @@ from there.
 
 ## Use
 
-1. Open Misete and select **開始 (Start)**.
+1. Open Misete and select **Start**.
 2. On your iPad, open Control Center and choose **Screen Mirroring**.
 3. Select **Misete**.
 

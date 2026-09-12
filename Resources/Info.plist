@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleDevelopmentRegion</key>
-    <string>ja</string>
+    <string>en</string>
     <key>CFBundleExecutable</key>
     <string>Misete</string>
     <key>CFBundleIdentifier</key>
@@ -28,6 +28,6 @@
         <string>_raop._tcp</string>
     </array>
     <key>NSLocalNetworkUsageDescription</key>
-    <string>同一ネットワーク上のiPadから画面ミラーリングを受信するためにローカルネットワークを使用します。</string>
+    <string>Misete uses the local network to receive screen mirroring from an iPad on the same network.</string>
 </dict>
 </plist>
