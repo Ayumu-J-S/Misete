@@ -1,13 +1,9 @@
 # Misete
 
-I was annoyed that there was no quick way to share an iPad screen to my Mac.
-There are apps for it, but I wanted something I could build and run myself,
-without relying on an App Store app I did not know. So I made Misete.
-
-macOS already has an AirPlay Receiver, but I wanted a single-purpose app I
-could launch when I needed it and immediately choose from my iPad.
-
-It took me about 15 minutes, so here you go. Save yourself the token usage.
+I was annoyed that there was no quick way to share my iPad screen to my Mac.
+You either have to use QuickTime Player or install an app you do not know (
+maybe there are other ways), but it was literally easier for me to make an app for
+it. It took me like 15 minutes, so here you go. Save yourself the token usage.
 
 ## Install
 
